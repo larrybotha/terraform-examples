@@ -20,15 +20,3 @@ runcmd:
   - sed -i -e '$aAllowUsers app' /etc/ssh/sshd_config
   # restart the SSH service
   - restart ssh
-
-# for troubleshooting - this allows one to log in via
-# Digitalocean's console
-#
-# /var/log/cloud-init.log
-#  - The actual process logs for cloud-init’s processing of the
-#     configuration files.
-# /var/log/cloud-init-output.log
-chpasswd:
-  list: |
-    root:password
-  expire: False
