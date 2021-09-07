@@ -1,0 +1,34 @@
+#cloud-config
+users:
+  - name: app
+    ssh_authorized_keys:
+      #- [your-public-key]
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDebCpRFT7bIpX/GEuf1+G9J3TpHJOcMZNbl7bK7QM9ERFNh5JJ6RIYGKC/6wEnrZ/IdgNFW/bXyLZh/8pxMR5lwKPFUbvVpaeGtMHAS8s7T/F9xIiYF2svd+5jZb1RE/AaZWWL/8KR8zQcP0rCatLeX+sVVUGFz0P2Wl2v4Q22Osw0j1JCyjKPCadfSVSzWpc3V6luRFfj2HPB/jbhRQt3btbMw7TE2Ql5F/PWpj7ot0itYP7QDKtbVObdpnx3BCR41bvbS40aCxVlgBywpe8YkTEfbSBk9TBsWRTb2XOX/9iOEm0+CxbHb6aneGf2lkYrhdH7bCnSEmJvnr9P7DIF4wPebP27CEnwXL2FrrX0u2GaowGUT7oO9wDLEOg7iNLjYU2Qvg2iTI5azHJ8AMbYQHzwrIfEfmkxANeKSAScwsItMJ6f5nyOAtux67Q0X2EhP/v+ntmZwHwy1tUlZKz4nfV2xJy+PCwOzfB3+0BS2zmrDFziHfu8ZfGQA8Siy0= larry@example.com
+    # allow user to use sudo without password
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    # give the user sudo privileges
+    groups: sudo
+    # use bash as the default shell
+    shell: /bin/bash
+
+runcmd:
+  # make the SSH daemon listen on port 4444
+  - sed -i -e '/^Port/s/^.*$/Port 4444/' /etc/ssh/sshd_config
+  # disable root login
+  - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+  # allow the `app` user to log in
+  - sed -i -e '$aAllowUsers app' /etc/ssh/sshd_config
+  # restart the SSH service
+  - restart ssh
+
+# for troubleshooting - this allows one to log in via
+# Digitalocean's console
+#
+# /var/log/cloud-init.log
+#  - The actual process logs for cloud-init’s processing of the
+#     configuration files.
+# /var/log/cloud-init-output.log
+chpasswd:
+  list: |
+    root:password
+  expire: False
