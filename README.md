@@ -76,6 +76,44 @@ This example has the following features:
     $ terraform destroy
     ```
 
+### Store tfstate in Digitalocean space
+
+If you have issues with any of these steps, remove all the generated Terraform
+files from the project root.
+
+1. create a space in Digitalocean
+2. create an access key and secret
+3. uncomment the `backend` lines in [main.tf](./main.tf)
+4. add space details to your environment:
+    ```bash
+    $ export SPACE_ACCESS_KEY=...
+    $ export SPACE_SECRET_KEY=...
+    $ export SPACE_BUCKET=...
+    $ export SPACE_ENDPOINT=...
+    $ export SPACE_KEY=...
+    $ export SPACE_REGION=...
+    ```
+5. initialise Terraform with the backend configs:
+
+    ```bash
+    terraform init -migrate-state \
+        -backend-config "access_key=$SPACE_ACCESS_KEY" \
+        -backend-config "secret_key=$SPACE_SECRET_KEY" \
+        -backend-config "bucket=$SPACE_BUCKET" \
+        -backend-config "endpoint=$SPACE_ENDPOINT" \
+        -backend-config "key=$SPACE_KEY" \
+        -backend-config "region=$SPACE_REGION"
+    ```
+6. apply the plan
+
+    ```bash
+    $ terraform apply
+    ```
+7. view the space in Digitalocean for the new file
+
+Note: using S3 with DynamoDB is the preferred method for storing, encrypting,
+locking, and versioning of `terraform.tfstate` files
+
 ## Debugging
 
 To debug cloud-init, [Multipass](https://multipass.run/) allows for running
