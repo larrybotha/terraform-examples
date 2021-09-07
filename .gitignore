@@ -1,3 +1,5 @@
 my-key*
-terraform.tstate*
+terraform.tfstate*
 .terraform*
+validate-yaml.py
+*.log
