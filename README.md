@@ -67,7 +67,7 @@ This example has the following features:
 5. SSH into a droplet
 
   ```bash
-  $ ssh app@[droplet-ip]
+  $ ssh app@$(terraform output -json ip_address | jq -r '.[0]') -i my-key
   $ exit
   ```
 6. Clean up
