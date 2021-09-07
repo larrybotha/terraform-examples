@@ -25,56 +25,56 @@ This example has the following features:
 
 1. Install Terraform on your machine
 1. Configure Digitalocean personal access token:
-  1. Create a token in Digital Ocean
-  1. Make it available to Terraform on your local machine:
+    1. Create a token in Digital Ocean
+    1. Make it available to Terraform on your local machine:
 
-    ```bash
-    $ export DIGITALOCEAN_ACCESS_TOKEN=your-access-token
-    ```
+        ```bash
+        $ export DIGITALOCEAN_ACCESS_TOKEN=your-access-token
+        ```
 1. Configure a local SSH key
-  1. Create a key without a passphrase
+    1. Create a key without a passphrase
 
-    ```bash
-    $ ssh-keygen -t rsa -f ./my-key
-    ```
-  2. Copy your public key to your clipboard
+        ```bash
+        $ ssh-keygen -t rsa -f ./my-key
+        ```
+    2. Copy your public key to your clipboard
 
-    ```bash
-    $ cat my-key.pub | pbcopy
-    ```
-  3. Add the public key to [`app.yml`](./app.yml)
+        ```bash
+        $ cat my-key.pub | pbcopy
+        ```
+    3. Add the public key to [`app.yml`](./app.yml)
 
-    ```yml
-    # ...
-    ssh_authorized_keys:
-      - ssh-rsa ...
-    ```
+        ```yml
+        # ...
+        ssh_authorized_keys:
+          - ssh-rsa ...
+        ```
 2. Initialise Terraform:
 
-  ```bash
-  $ terraform init
-  ```
+    ```bash
+    $ terraform init
+    ```
 3. View the plan
 
-  ```bash
-  $ terraform plan
-  ```
+    ```bash
+    $ terraform plan
+    ```
 4. Execute the plan
 
-  ```bash
-  $ terraform apply
-  ```
+    ```bash
+    $ terraform apply
+    ```
 5. SSH into a droplet
 
-  ```bash
-  $ ssh app@$(terraform output -json ip_address | jq -r '.[0]') -i my-key
-  $ exit
-  ```
+    ```bash
+    $ ssh app@$(terraform output -json ip_address | jq -r '.[0]') -i my-key
+    $ exit
+    ```
 6. Clean up
 
-  ```bash
-  $ terraform destroy
-  ```
+    ```bash
+    $ terraform destroy
+    ```
 
 ## Debugging
 
