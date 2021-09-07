@@ -110,6 +110,11 @@ files from the project root.
     $ terraform apply
     ```
 7. view the space in Digitalocean for the new file
+8. clean up
+
+    ```bash
+    $ terraform destroy
+    ```
 
 Note: using S3 with DynamoDB is the preferred method for storing, encrypting,
 locking, and versioning of `terraform.tfstate` files
