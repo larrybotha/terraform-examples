@@ -5,5 +5,5 @@ resource "digitalocean_droplet" "terraform" {
   region = var.droplet.region
   size   = var.droplet.size
 
-  user_data = data.template_file.user_data.rendered
+  user_data = data.cloudinit_config.config.rendered
 }

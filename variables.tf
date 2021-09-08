@@ -1,3 +1,7 @@
+variable "user_data" {
+  default = "user_data.yml"
+}
+
 variable "ssh_key" {
   type = object({
     name            = string
@@ -11,19 +15,17 @@ variable "ssh_key" {
 
 variable "droplet" {
   type = object({
-    name           = string
-    count          = number
-    image          = string
-    region         = string
-    size           = string
-    user_data_file = string
+    name   = string
+    count  = number
+    image  = string
+    region = string
+    size   = string
   })
   default = {
-    name           = "terraform-example"
-    count          = 2
-    image          = "ubuntu-20-04-x64"
-    region         = "lon1"
-    size           = "s-1vcpu-1gb"
-    user_data_file = "user_data.yml"
+    name   = "terraform-example"
+    count  = 2
+    image  = "ubuntu-20-04-x64"
+    region = "lon1"
+    size   = "s-1vcpu-1gb"
   }
 }

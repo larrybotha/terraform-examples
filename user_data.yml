@@ -2,7 +2,7 @@
 users:
   - name: app
     ssh_authorized_keys:
-      #- [your-public-key]
+      - ${ssh_key}
     # allow user to use sudo without password
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     # give the user sudo privileges

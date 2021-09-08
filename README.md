@@ -42,12 +42,17 @@ This example has the following features:
         ```bash
         $ cat my-key.pub | pbcopy
         ```
-    3. Add the public key to [`app.yml`](./app.yml)
+    3. Update the name of your public key if it's not `my-key` in
+       [`variables.tf`](./variables.tf):
 
-        ```yml
-        # ...
-        ssh_authorized_keys:
-          - ssh-rsa ...
+        ```hcl
+        variable "ssh_key" {
+            # ...
+            default = {
+                # ...
+                public_key_file = "[your-key].pub"
+            }
+        }
         ```
 2. Initialise Terraform:
 
