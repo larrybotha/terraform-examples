@@ -1,0 +1,12 @@
+version: "3.3"
+
+services:
+  app:
+    restart: unless-stopped
+    image: "${IMAGE_NAME}:${IMAGE_TAG:-latest}"
+    ports:
+      - 80:80
+    env_file:
+      - .env
+    #container_name: "${CONTAINER_NAME}"
+    #command: "${CONTAINER_COMMAND}"
