@@ -1,0 +1,35 @@
+#cloud-config
+users:
+  - name: app
+    ssh_authorized_keys:
+      - ${ssh_key}
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: sudo
+    shell: /bin/bash
+
+write_files:
+  %{~ for f in files ~}
+  - path: /var/app/${f.filename}
+    permissions: %{ if substr(f.filename, -2, 2) == "sh" }0755%{else}0644%{endif}
+    content: ${f.content}
+    encoding: b64
+  %{~ endfor ~}
+
+runcmd:
+  # SSH
+  - sed --in-place --expression '/^Port/s/^.*$/Port 4444/' /etc/ssh/sshd_config
+  - |
+    sed --in-place -expression \
+    '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+  - sed --in-place --expression '$aAllowUsers app' /etc/ssh/sshd_config
+  - restart ssh
+  # install goss
+  - |
+    curl -L "https://github.com/aelsabbahy/goss/releases/download/${goss_version}/goss-linux-amd64" \
+    -o /usr/local/bin/goss
+  - chmod +rx /usr/local/bin/goss
+  - ufw allow 8080
+  # start docker-compose
+  - (cd /var/app && docker-compose up -d)
+  # start goss, restarting it if it exits
+  - (cd /var/app && while true; do goss serve --format silent; sleep 1; done &)
