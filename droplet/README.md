@@ -1,17 +1,17 @@
-# Digital Ocean / Terraform droplet creation example
+# Digitalocean / Terraform droplet creation example
 
-This repo demonstrates how to create droplets on Digital Ocean using Terraform
-and Cloud Init, with Digital Ocean's recommended user configs.
+This repo demonstrates how to create droplets on Digitalocean using Terraform
+and Cloud Init, with Digitalocean's recommended user configs.
 
 ## Why
 
 The examples at [Hashicorp][hashi-docean-provider] and
-[Digital Ocean][docean-how-to-terraform] were helpful, but I found were lacking
+[Digitalocean][docean-how-to-terraform] were helpful, but I found were lacking
 in a few ways:
 
 - the Hashicorp's SSH example didn't allow for passwordless logins
-- the Digital Ocean example uses `remote-exec` which is discouraged by Hashicorp
-- neither example demonstrated how to configure Digital Ocean's recommended user
+- the Digitalocean example uses `remote-exec` which is discouraged by Hashicorp
+- neither example demonstrated how to configure Digitalocean's recommended user
   settings
 
 This example has the following features:
@@ -25,7 +25,7 @@ This example has the following features:
 
 1. Install Terraform on your machine
 1. Configure Digitalocean personal access token:
-    1. Create a token in Digital Ocean
+    1. Create a token in Digitalocean
     1. Make it available to Terraform on your local machine:
 
         ```bash
@@ -135,7 +135,7 @@ $ multipass launch --name test --config-init user_data.yml
 
 ## Links
 
-- [Hashicorp - Digital Ocean Provider][hashi-docean-provider]
+- [Hashicorp - Digitalocean Provider][hashi-docean-provider]
 - [Digitalocean - How to use Terraform with DigitalOcean][docean-how-to-terraform]
 - [Digitalocean - How to use Cloud Config for your initial server setup][docean-cloud-config]
 
