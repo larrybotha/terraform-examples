@@ -1,21 +1,36 @@
-# Digital Ocean / Terraform blue-green zero-downtime deployment
+# Digitalocean / Terraform blue-green zero-downtime deployment
 
-This repo demonstrates how to create droplets on Digital Ocean using Terraform
-and Cloud Init, with Digital Ocean's recommended user configs.
+This repo demonstrates how to perform blue-green deployments on Digitalocean using
+Terraform.
 
 ## Why
 
-This is not trivial, despite how many examples come across!
+This is not trivial, despite how many examples I've come across!
 
 This example has the following features:
 
-- TBD
+- provisions the following resources on Digitalocean:
+    - SSH key
+    - loadbalancer, configured to route by droplet tags
+        - this reduces the time for droplets to become healthy, since as soon as
+            droplets are deployed with a tag, they will be added to a load
+            balancer. Adding droplets via id can take longer, since we first
+            need to check that a droplet is itself healthy, and then only may it
+            be added to a loadbalancer. Instead, we assume that the droplet is
+            going to become healthy, and let the loadbalancer deal with routing
+            traffic
+    - droplets
+- when transitioning from blue to green, or vice versa:
+    - builds new droplets
+    - makes no changes to existing droplets
+- when finalising a deployment
+    - destroys old droplets
 
 ## Instructions
 
 1. Install Terraform on your machine
 1. Configure Digitalocean personal access token:
-    1. Create a token in Digital Ocean
+    1. Create a token in Digitalocean
     1. Make it available to Terraform on your local machine:
 
         ```bash
@@ -44,73 +59,49 @@ This example has the following features:
             }
         }
         ```
-2. Initialise Terraform:
+1. Generate certificates for the load balancer:
+    ```shell
+    $ ./scripts/generate-certificate.sh
+    ```
+1. Initialise Terraform:
 
     ```bash
     $ terraform init
     ```
-3. View the plan
+1. View the plan
 
     ```bash
     $ terraform plan
     ```
-4. Execute the plan
+1. Initialise the blue droplets
 
     ```bash
-    $ terraform apply
+    $ terraform apply -auto-approve -var state=blue
     ```
-5. SSH into a droplet
+1. Initialise the blue droplets
+
+    ```bash
+    $ terraform apply -auto-approve -var state=blue
+    ```
+1. Initialise the transition
+
+    ```bash
+    $ terraform apply -auto-approve -var state=transition_to_green
+    ```
+1. Visit the loadbalancer IP address, reloading to see the load being routed
+   between your droplets
 
     ```bash
     $ ssh app@$(terraform output -json ip_address | jq -r '.[0]') -i my-key
     $ exit
     ```
-6. Clean up
+1. Finalise the transition to green
 
     ```bash
-    $ terraform destroy
+    $ terraform apply -auto-approve -var state=green
     ```
-
-### Store tfstate in Digitalocean space
-
-If you have issues with any of these steps, remove all the generated Terraform
-files from the project root.
-
-1. create a space in Digitalocean
-2. create an access key and secret
-3. uncomment the `backend` lines in [main.tf](./main.tf)
-4. add space details to your environment:
-    ```bash
-    $ export SPACE_ACCESS_KEY=...
-    $ export SPACE_SECRET_KEY=...
-    $ export SPACE_BUCKET=...
-    $ export SPACE_ENDPOINT=...
-    $ export SPACE_KEY=...
-    $ export SPACE_REGION=...
-    ```
-5. initialise Terraform with the backend configs:
+1. Clean up
 
     ```bash
-    terraform init -migrate-state \
-        -backend-config "access_key=$SPACE_ACCESS_KEY" \
-        -backend-config "secret_key=$SPACE_SECRET_KEY" \
-        -backend-config "bucket=$SPACE_BUCKET" \
-        -backend-config "endpoint=$SPACE_ENDPOINT" \
-        -backend-config "key=$SPACE_KEY" \
-        -backend-config "region=$SPACE_REGION"
+    $ terraform destroy -auto-approve
     ```
-6. apply the plan
-
-    ```bash
-    $ terraform apply
-    ```
-7. view the space in Digitalocean for the new file
-8. clean up
-
-    ```bash
-    $ terraform destroy
-    ```
-
-Note: using S3 with DynamoDB is the preferred method for storing, encrypting,
-locking, and versioning of `terraform.tfstate` files
-
