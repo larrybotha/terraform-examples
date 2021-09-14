@@ -11,60 +11,62 @@ for storing tfstate.
 ## Instructions
 
 1. Install Terraform on your machine
-1. Configure Digitalocean personal access token:
-    1. Create a token in Digitalocean
-    1. Make it available to Terraform on your local machine:
+1. Create a token in Digitalocean
+1. Create a space token and secret in Digitalocean
+1. Add your credentials to a variables file:
+    ```shell
+    # terraform.tfvars is gitignored to protect your credentials
+    $ cp terraform.tfvars{.example,}
 
-        ```bash
-        $ export DIGITALOCEAN_ACCESS_TOKEN=your-access-token
-        ```
-1. Configure Digitalocean space token and secret:
-    1. Create a token in Digitalocean's spaces UI
-    1. Make the token and secret available to the command line
-
-        ```bash
-        $ export DO_SPACES_ACCESS_TOKEN=your-space-access-token
-        $ export DO_SPACES_SECRET=your-space-secret-key
-        ```
-1. Initialise Terraform:
-
+    # add your credentials
+    $ vi terraform.tfvars
+    ```
+1. Disable the remote backend in [main.tf](./main.tf) by commenting the block
+   out - we first need a bucket before we can store our state in a remote backend
+1. Initialise terraform
     ```bash
     $ terraform init
     ```
 1. View the plan
-
     ```bash
     $ terraform plan
     ```
-1. Initialise the blue droplets
-
+1. Create the space
     ```bash
-    $ terraform apply -auto-approve -var state=blue
+    $ terraform apply -auto-approve
     ```
-1. Initialise the blue droplets
+1. Add your credentials and space details to a backend config file:
+    ```shell
+    # *.gitignore.tfvars files are gitignored to protect your credentials
+    $ cp backend.gitignore.tfvars{.example,}
 
-    ```bash
-    $ terraform apply -auto-approve -var state=blue
+    # add your credentials
+    $ vi backend.gitignore.tfvars
     ```
-1. Initialise the transition
-
+1. Enable the backend in [main.tf](./main.tf) by uncommenting it
+1. Initialise terraform with the new backend details
     ```bash
-    $ terraform apply -auto-approve -var state=transition_to_green
+    $ terraform init -backend-config=backend.gitignore.tfvars
+    # or, if required
+    $ terraform init -backend-config=backend.gitignore.tfvars -migrate-state
     ```
-1. Visit the loadbalancer IP address, reloading to see the load being routed
-   between your droplets
-
-    ```bash
-    $ ssh app@$(terraform output -json ip_address | jq -r '.[0]') -i my-key
-    $ exit
-    ```
-1. Finalise the transition to green
-
-    ```bash
-    $ terraform apply -auto-approve -var state=green
-    ```
+1. Visit your bucket to see the uploaded `terraform.tfstate`
 1. Clean up
 
     ```bash
     $ terraform destroy -auto-approve
+    ```
+
+## Importing an existing space into Terraform state
+
+Using the configs in this example:
+
+1. Initialise terraform:
+
+    ```shell
+    $ terraform init
+    ```
+1. Import the space
+    ```shell
+    $ terraform import digitalocean_spaces_bucket [region],[name-of-bucket]
     ```
