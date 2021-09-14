@@ -31,18 +31,18 @@ This repo demonstrates how to use Digitalocean as a remote backend for Terraform
     ```
 1. Add your credentials and space details to a backend config file:
     ```shell
-    # *.gitignore.tfvars files are gitignored to protect your credentials
-    $ cp backend.gitignore.tfvars{.example,}
+    # *.tfvars files are gitignored to protect your credentials
+    $ cp backend.tfvars{.example,}
 
     # add your credentials
-    $ vi backend.gitignore.tfvars
+    $ vi backend.tfvars
     ```
 1. Enable the backend in [main.tf](./main.tf) by uncommenting it
 1. Initialise terraform with the new backend details
     ```bash
-    $ terraform init -backend-config=backend.gitignore.tfvars
+    $ terraform init -backend-config=backend.tfvars
     # or, if required
-    $ terraform init -backend-config=backend.gitignore.tfvars -migrate-state
+    $ terraform init -backend-config=backend.tfvars -migrate-state
     ```
 1. Visit your bucket to see the uploaded `terraform.tfstate`
 1. Clean up
