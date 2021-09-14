@@ -1,5 +1,5 @@
 my-key*
-terraform.tfstate*
+*.tfstate*
 .terraform*
 validate-yaml.py
 *.log
