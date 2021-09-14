@@ -43,7 +43,7 @@ variable "do_spaces_secret_key" {
 variable "space" {
   default = {
     region = "fra1"
-    name   = "terraform-example-1"
+    name   = "terraform-example"
   }
   type = object({
     region = string
