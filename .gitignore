@@ -5,3 +5,7 @@ validate-yaml.py
 *.log
 certs
 crash*
+*.gitignore.tf
+!*.gitignore.tf.example
+terraform.tfvars
+!terraform.tfvars.example
