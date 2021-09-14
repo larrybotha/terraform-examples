@@ -1,12 +1,6 @@
-# Digitalocean / Terraform blue-green zero-downtime deployment
+# Terraform with Digitalocean space as a remote backend
 
-This repo demonstrates how to perform blue-green deployments on Digitalocean using
-Terraform.
-
-## Why
-
-This example demonstrates how to use Digitalocean's spaces as a remote backend
-for storing tfstate.
+This repo demonstrates how to use Digitalocean as a remote backend for Terraform.
 
 ## Instructions
 
