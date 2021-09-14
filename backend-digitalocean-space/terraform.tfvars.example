@@ -1,1 +1,3 @@
-do_access_token = "digital-ocean-personal-access-token"
+do_access_token = "docean-personal-access-token"
+do_spaces_access_id = "docean-spaces-access-id"
+do_spaces_secret_key = "docean-spaces-secret-key"
