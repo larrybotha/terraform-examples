@@ -1,0 +1,6 @@
+bucket     = "your-bucket-name"
+endpoint   = "your-endpoint"
+key        = "path/to/terraform.tfstate"
+region     = "any-valid-aws-region"
+access_key = "space_access_key"
+secret_key = "space_secret_key"
