@@ -9,6 +9,11 @@ resource "digitalocean_droplet" "blue" {
   size               = var.droplet.size
   tags               = concat([local.tags_deployment.blue], values(local.tags_common))
 
+  # Required for first runs otherwise Terraform provisions droplets before the
+  # load balancer, and the subsequent request to provision a load balancer
+  # responds with a 500
+  depends_on = [digitalocean_loadbalancer.lb]
+
   # Prevent Digitalocean from sending email for root user and password
   ssh_keys = [digitalocean_ssh_key.terraform.id]
 
@@ -40,6 +45,11 @@ resource "digitalocean_droplet" "green" {
   region             = var.droplet.region
   size               = var.droplet.size
   tags               = concat([local.tags_deployment.green], values(local.tags_common))
+
+  # Required for first runs otherwise Terraform provisions droplets before the
+  # load balancer, and the subsequent request to provision a load balancer
+  # responds with a 500
+  depends_on = [digitalocean_loadbalancer.lb]
 
   # Prevent Digitalocean from sending email for root user and password
   ssh_keys = [digitalocean_ssh_key.terraform.id]
