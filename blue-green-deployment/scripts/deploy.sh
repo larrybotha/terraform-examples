@@ -212,10 +212,4 @@ function __main() {
 
 }
 
-function handled() {
-  echo "handled!"
-}
-
-trap handled ERR
-
 __main "$*"
