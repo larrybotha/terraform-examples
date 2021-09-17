@@ -27,8 +27,8 @@ locals {
   deployment_type_map = {
     blue                = "blue"
     green               = "green"
-    transition_to_green = "transition-to-green"
-    transition_to_blue  = "transition-to-blue"
+    transition_to_green = "transition_to_green"
+    transition_to_blue  = "transition_to_blue"
   }
 
   # if no state is provided, assume blue

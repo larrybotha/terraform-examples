@@ -1,6 +1,23 @@
+variable "do_access_token" {
+  description = "Digitalocean personal access token"
+  type        = string
+
+  validation {
+    condition     = length(var.do_access_token) > 0
+    error_message = "A Digitalocean access token is required."
+  }
+}
+
 variable "state" {
   description = "Current deployment state"
   default     = "blue"
+  validation {
+    condition = contains(
+      ["blue", "green", "transition_to_blue", "transition_to_green"],
+      var.state,
+    )
+    error_message = "Invalid deployment state provided."
+  }
 }
 
 variable "project_name" {
