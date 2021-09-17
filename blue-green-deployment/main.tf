@@ -31,8 +31,12 @@ locals {
     transition_to_blue  = "transition_to_blue"
   }
 
-  # if no state is provided, assume blue
-  state = lookup(local.deployment_type_map, var.state, local.deployment_type_map.blue)
+  # if no valid deployment type is provided, assume blue
+  deployment_type = lookup(
+    local.deployment_type_map,
+    var.deployment_type,
+    local.deployment_type_map.blue
+  )
 
   environment = merge({
     IMAGE_NAME = "nginxdemos/hello"
@@ -62,15 +66,15 @@ locals {
   }
 
   app_instances = {
-    # if the state is green, we don't want any blue app_instances
-    blue = local.state == local.deployment_type_map.green ? 0 : var.droplet.count
-    # if the state is blue, we don't want any green app_instances
-    green = local.state == local.deployment_type_map.blue ? 0 : var.droplet.count
+    # if the deployment_type is green, we want 0 blue app_instances
+    blue = local.deployment_type == local.deployment_type_map.green ? 0 : var.droplet.count
+    # if the deployment_type is blue, we want 0 green app_instances
+    green = local.deployment_type == local.deployment_type_map.blue ? 0 : var.droplet.count
   }
 
   lb_check_interval = anytrue([
-    local.state == local.deployment_type_map.green,
-    local.state == local.deployment_type_map.blue
+    local.deployment_type == local.deployment_type_map.green,
+    local.deployment_type == local.deployment_type_map.blue
   ]) ? 10 : 6
 }
 

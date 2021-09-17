@@ -76,17 +76,17 @@ This example has the following features:
 1. Initialise the blue droplets
 
     ```bash
-    $ terraform apply -auto-approve -var state=blue
+    $ terraform apply -auto-approve -var deployment_type=blue
     ```
 1. Initialise the blue droplets
 
     ```bash
-    $ terraform apply -auto-approve -var state=blue
+    $ terraform apply -auto-approve -var deployment_type=blue
     ```
 1. Initialise the transition
 
     ```bash
-    $ terraform apply -auto-approve -var state=transition_to_green
+    $ terraform apply -auto-approve -var deployment_type=transition_to_green
     ```
 1. Visit the loadbalancer IP address, reloading to see the load being routed
    between your droplets
@@ -98,7 +98,7 @@ This example has the following features:
 1. Finalise the transition to green
 
     ```bash
-    $ terraform apply -auto-approve -var state=green
+    $ terraform apply -auto-approve -var deployment_type=green
     ```
 1. Clean up
 

@@ -25,8 +25,8 @@ output "loadbalancer_ids" {
   value = digitalocean_loadbalancer.lb[*].id
 }
 
-output "state" {
-  value = local.state
+output "last_deployment_type" {
+  value = var.deployment_type
 }
 
 # preview the generated cloud-init config

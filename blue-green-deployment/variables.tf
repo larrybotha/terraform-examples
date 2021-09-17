@@ -8,15 +8,15 @@ variable "do_access_token" {
   }
 }
 
-variable "state" {
-  description = "Current deployment state"
+variable "deployment_type" {
+  description = "The type of deployment to run"
   default     = "blue"
   validation {
     condition = contains(
       ["blue", "green", "transition_to_blue", "transition_to_green"],
-      var.state,
+      var.deployment_type,
     )
-    error_message = "Invalid deployment state provided."
+    error_message = "Invalid deployment type provided."
   }
 }
 
