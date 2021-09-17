@@ -5,5 +5,5 @@ validate-yaml.py
 *.log
 certs
 crash*
-*.tfvars
+*.tfvars*
 !*.tfvars.example
