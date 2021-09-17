@@ -25,7 +25,7 @@ function __main() {
     echo -e "[ERROR]: $*"
   }
 
-  function validate_var_exists() {
+  function assert_env_var_exists() {
     local name="${1}"
 
     if [ -z "${!name}" ]; then
@@ -47,32 +47,35 @@ function __main() {
     terraform validate
   }
 
-  function terraform_write_variables() {
-    local variables=(
+  function terraform_write_tfvars() {
+    local names=(
       DIGITALOCEAN_ACCESS_TOKEN
     )
     local file="${1}"
 
     log "Setting Terraform variables in ${file}\n"
 
-    for variable in "${variables[@]}"; do
-      validate_var_exists "${variable}"
-      system_sed "s/${variable}/${!variable}/" "${file}"
+    for name in "${names[@]}"; do
+      assert_env_var_exists "${name}"
+      system_sed "s/${name}/${!name}/" "${file}"
     done
   }
 
-  function terraform_prepare_variables() {
+  function terraform_prepare_tfvars() {
     log "Preparing Terraform variables\n"
 
-    local terraform_file=terraform.tfvars
+    local var_files=(
+      terraform.tfvars
+    )
 
-    cp -v terraform.tfvars.example "${terraform_file}"
-
-    terraform_write_variables "${terraform_file}"
+    for var_file in "${var_files[@]}"; do
+      cp -v "${var_file}.example" "${var_file}"
+      terraform_write_tfvars "${var_file}"
+    done
   }
 
   function terraform_prepare() {
-    terraform_prepare_variables
+    terraform_prepare_tfvars
     terraform init -backend-config=backend.tfvars
   }
 
@@ -96,71 +99,80 @@ function __main() {
   }
 
   function get_last_deployment_type() {
-    local deployment_type
-    deployment_type="$(terraform output -json | jq '.last_deployment_type.value')"
+    local deployment_type="null"
+    # jq returns `null` if unable to match on a property
+    deployment_type=$(terraform output -json | jq '.last_deployment_type.value')
 
-    if [ -z "${deployment_type}" ]; then
+    if [ "${deployment_type}" == "null" ]; then
       deployment_type="blue"
     fi
 
     # remove quotes
-    deployment_type=$(echo "${deployment_type}" | tr -d \" | tr -d \')
+    deployment_type=$(echo "${deployment_type}" | tr -d \"\')
 
     echo "${deployment_type}"
   }
 
-  function deploy() {
+  function run_deploy() {
+    local deployment_type="${1}"
+
+    terraform plan
+
+    # shellcheck disable=SC2015
+    terraform apply -auto-approve -var deployment_type="${deployment_type}" &&
+      # always run try_deploy whether `terraform apply` fails or succeeds
+      # - try_deploy will roll back if a transition_to deployment fails
+      try_deploy "$?" || try_deploy "$?"
+  }
+
+  function try_deploy() {
     local last_deploy_exit_code="${1}"
     local last_deployment_type
     local transition_state
-    local plan_file=.terraform.plan
+    local system_state
     last_deployment_type=$(get_last_deployment_type)
     transition_state=$(get_transition_state "${last_deploy_exit_code}")
     system_state="${last_deployment_type}.${transition_state}"
 
-    terraform plan -out="${plan_file}" >/dev/null
+    function handle() {
+      echo "handled ${1}"
+    }
 
     case "${system_state}" in
     # if blue, transition to green
     blue.initial)
       log "Transitioning from blue to transition_to_green"
-      terraform apply -auto-approve -var deployment_type=transition_to_green
-      deploy "$?"
+      run_deploy transition_to_green
       ;;
 
     # if green, transition to blue
     green.initial)
       log "Transitioning from green to transition_to_blue"
-      terraform apply -auto-approve -var deployment_type=transition_to_blue
-      deploy "$?"
+      run_deploy transition_to_blue
       ;;
 
     # if transitioning to green, complete transition
     transition_to_green.initial | transition_to_green.success)
       log "Transitioning from transition_to_green to green"
-      terraform apply -auto-approve -var deployment_type=green
-      deploy "$?"
+      run_deploy green
       ;;
 
     # if transitioning to blue, complete transition
     transition_to_blue.initial | transition_to_blue.success)
       log "Transitioning from transition_to_blue to blue"
-      terraform apply -auto-approve -var deployment_type=blue
-      deploy "$?"
+      run_deploy blue
       ;;
 
     # if failed during transition to blue, go back to green
     transition_to_blue.failure)
       log "Failure transitioning to blue; transitioning back to green"
-      terraform apply -auto-approve -var deployment_type=green
-      deploy "$?"
+      run_deploy green
       ;;
 
     # if failed during transition to green, go back to blue
     transition_to_green.failure)
       log "Failure transitioning to green; transitioning back to blue"
-      terraform apply -auto-approve -var deployment_type=blue
-      deploy "$?"
+      run_deploy blue
       ;;
 
     # if green or blue success, we're done
@@ -175,7 +187,7 @@ function __main() {
       ;;
 
     *)
-      error "Unable to transition"
+      error "Unable to transition ${system_state}"
       exit 1
       ;;
     esac
@@ -196,7 +208,14 @@ function __main() {
 
   terraform_prepare
   terraform_validate
-  deploy
+  try_deploy
+
 }
+
+function handled() {
+  echo "handled!"
+}
+
+trap handled ERR
 
 __main "$*"
