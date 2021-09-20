@@ -56,8 +56,16 @@ function __main() {
     log "Setting Terraform variables in ${file}\n"
 
     for name in "${names[@]}"; do
+      local delimiter="/"
+
+      # Use | as a delimiter for sed if the value contains /
+      # If the value also contains |, this will function will still fail
+      if [[ "${!name}" =~ "/" ]]; then
+        delimiter="|"
+      fi
+
       assert_env_var_exists "${name}"
-      system_sed "s/${name}/${!name}/" "${file}"
+      system_sed "s${delimiter}${name}${delimiter}${!name}${delimiter}" "${file}"
     done
   }
 
