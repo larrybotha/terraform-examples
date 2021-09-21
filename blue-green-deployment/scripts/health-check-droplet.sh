@@ -10,7 +10,7 @@ _check_health() {
   local address="${1}:8080/healthz"
 
   echo "checking health at ${address}..."
-  curl --silent "${address}" >/dev/null
+  curl --fail "${address}" >/dev/null
 }
 
 _run_health_checks() {
