@@ -23,8 +23,8 @@ resource "digitalocean_droplet" "blue" {
   # Use a healthcheck to determine when this resource's services are available
   provisioner "local-exec" {
     command = <<-EOT
-      ${local.scripts_dir}/health-check-droplet.sh ${self.ipv4_address}
-      ${local.scripts_dir}/wait-for-loadbalancer.sh
+      ${local.scripts_dir}/health-check-droplet.sh ${self.ipv4_address} &&
+        ${local.scripts_dir}/wait-for-loadbalancer.sh
     EOT
   }
 
@@ -60,8 +60,8 @@ resource "digitalocean_droplet" "green" {
   # Use a healthcheck to determine when this resource's services are available
   provisioner "local-exec" {
     command = <<-EOT
-      ${local.scripts_dir}/health-check-droplet.sh ${self.ipv4_address}
-      ${local.scripts_dir}/wait-for-loadbalancer.sh
+      ${local.scripts_dir}/health-check-droplet.sh ${self.ipv4_address} &&
+        ${local.scripts_dir}/wait-for-loadbalancer.sh
     EOT
   }
 
