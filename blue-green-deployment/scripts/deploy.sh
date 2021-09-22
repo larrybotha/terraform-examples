@@ -203,7 +203,7 @@ function __main() {
 
   local environment="${1:-staging}"
   local script_dir
-  script_dir=$(dirname "${0}")
+  script_dir=$(dirname "${BASH_SOURCE[0]}")
 
   # the Terraform directory relative to this script
   local terraform_dir
