@@ -72,10 +72,12 @@ locals {
     green = local.deployment_type == local.deployment_type_map.blue ? 0 : var.droplet.count
   }
 
-  lb_check_interval = anytrue([
-    local.deployment_type == local.deployment_type_map.green,
-    local.deployment_type == local.deployment_type_map.blue
-  ]) ? 10 : 6
+  # When we are transitioning, decrease the healthcheck interval to speed up
+  # deployment. When we are not transitioning, use Digitalocean's default
+  loadbalancer_check_interval = anytrue([
+    local.deployment_type == local.deployment_type_map.transition_to_green,
+    local.deployment_type == local.deployment_type_map.transition_to_blue
+  ]) ? 3 : 10
 }
 
 # cloud-init
