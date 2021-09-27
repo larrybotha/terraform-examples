@@ -42,12 +42,7 @@ This example has the following features:
         ```bash
         $ ssh-keygen -t rsa -f ./my-key
         ```
-    2. Copy your public key to your clipboard
-
-        ```bash
-        $ cat my-key.pub | pbcopy
-        ```
-    3. Update the name of your public key if it's not `my-key` in
+    1. Update the name of your public key if it's not `my-key` in
        [`variables.tf`](./variables.tf):
 
         ```hcl
@@ -73,33 +68,37 @@ This example has the following features:
     ```bash
     $ terraform plan
     ```
-1. Initialise the blue droplets
+1. Provision your infrastructure in one of 2 ways:
+    - manual:
+        1. Initialise the blue droplets
 
-    ```bash
-    $ terraform apply -auto-approve -var deployment_type=blue
-    ```
-1. Initialise the blue droplets
+            ```bash
+            $ terraform apply -auto-approve -var deployment_type=blue
+            ```
+        1. Initialise the transition
 
-    ```bash
-    $ terraform apply -auto-approve -var deployment_type=blue
-    ```
-1. Initialise the transition
+            ```bash
+            $ terraform apply -auto-approve -var deployment_type=transition_to_green
+            ```
+        1. Visit the loadbalancer IP address, reloading to see the load being routed
+           between your droplets
 
-    ```bash
-    $ terraform apply -auto-approve -var deployment_type=transition_to_green
-    ```
-1. Visit the loadbalancer IP address, reloading to see the load being routed
-   between your droplets
+            ```bash
+            $ ssh app@$(terraform output -json ip_address | jq -r '.[0]') -i my-key
+            $ exit
+            ```
+        1. Finalise the transition to green
 
-    ```bash
-    $ ssh app@$(terraform output -json ip_address | jq -r '.[0]') -i my-key
-    $ exit
-    ```
-1. Finalise the transition to green
+            ```bash
+            $ terraform apply -auto-approve -var deployment_type=green
+            ```
+    - automated:
+        1. Run the deploy script
 
-    ```bash
-    $ terraform apply -auto-approve -var deployment_type=green
-    ```
+            ```bash
+            $ ./scripts/deploy.sh
+            ```
+
 1. Clean up
 
     ```bash
