@@ -40,12 +40,10 @@ variable "resource_tags" {
 
 variable "ssh_key" {
   type = object({
-    public_key_file  = string
-    private_key_file = string
+    public_key_file = string
   })
   default = {
-    public_key_file  = "my-key.pub"
-    private_key_file = "my-key"
+    public_key_file = "my-key.pub"
   }
 }
 
