@@ -171,21 +171,34 @@ function __main() {
       run_deploy blue
       ;;
 
-    # if failed during transition to blue, go back to green
-    transition_to_blue.failure)
-      log "Failure transitioning to blue; transitioning back to green"
-      run_deploy green
-      ;;
-
-    # if failed during transition to green, go back to blue
-    transition_to_green.failure)
-      log "Failure transitioning to green; transitioning back to blue"
-      run_deploy blue
-      ;;
-
     # if green or blue success, we're done
     blue.success | green.success)
       log "Successfully deployed ${deployment_type}"
+      exit 0
+      ;;
+
+    # if failed during transition to blue:
+    #   - go back to green
+    #   - exit with an error to indicate failed deployment
+    transition_to_blue.failure)
+      error "Failure transitioning to blue"
+      log "Rolling back to green"
+      run_deploy green
+
+      error "Failed to transition to blue"
+      exit 1
+      ;;
+
+    # if failed during transition to gren:
+    #   - go back to blue
+    #   - exit with an error to indicate failed deployment
+    transition_to_green.failure)
+      error "Failure transitioning to green"
+      log "Rolling back to blue"
+      run_deploy blue
+
+      error "Failed to transition to green"
+      exit 1
       ;;
 
     # if green or blue failed, manual intervention required
