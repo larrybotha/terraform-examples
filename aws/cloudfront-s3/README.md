@@ -35,7 +35,8 @@ If you have issues with any of these steps, remove all the generated Terraform
 files from this folder.
 
 1. create an access key and secret in AWS
-1. add access and secret key to `./terraform.tfvars`:
+1. copy `./terraform.tfvars` from `./terraform.tfvars.example`:
+1. add access key, secret key, and bucket name to `./terraform.tfvars`:
 1. initialise Terraform with the backend configs:
 1. initialise the plan
    ```bash
