@@ -1,5 +1,9 @@
-# Digital Ocean / Terraform examples
+# Terraform examples
 
-- [Creating a droplet](./droplet)
-- [Blue-green zero-downtime deployment](./blue-green-deployment)
-- [Digitalocean spaces as a Terraform backend](./backend-digitalocean-space)
+Examples for solving different problems with Terraform.
+
+## Digital Ocean + Terraform examples
+
+- [Creating a droplet](./digitalocean/droplet)
+- [Blue-green zero-downtime deployment](./digitalocean/blue-green-deployment)
+- [Digitalocean spaces as a Terraform backend](./digitalocean/backend-digitalocean-space)
