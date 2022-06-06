@@ -2,6 +2,10 @@
 
 Examples for solving different problems with Terraform.
 
+## AWS + Terraform examples
+
+- [CloudFront and S3](./aws/cloudfront-s3)
+
 ## Digital Ocean + Terraform examples
 
 - [Creating a droplet](./digitalocean/droplet)
