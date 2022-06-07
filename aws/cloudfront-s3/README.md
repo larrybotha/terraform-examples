@@ -27,7 +27,7 @@ how the pieces fit together.
 
 This is a working example, inspired by [advancedweb.hu - How to use CloudFront
 Trusted Key Groups][advanced-web-article], but also leverages [Terraform
-modules][terraform-modules] as a chance for me to learn how to use them.
+modules][terraform-modules] as an opportunity for me to learn how to use them.
 
 ## Instructions
 
@@ -35,19 +35,42 @@ If you have issues with any of these steps, remove all the generated Terraform
 files from this folder.
 
 1. create an access key and secret in AWS
-1. copy `./terraform.tfvars` from `./terraform.tfvars.example`:
-1. add access key, secret key, and bucket name to `./terraform.tfvars`:
-1. initialise Terraform with the backend configs:
-1. initialise the plan
+2. copy `./terraform.tfvars` from `./terraform.tfvars.example`:
+3. add access key, secret key, and bucket name to `./terraform.tfvars`:
+4. initialise Terraform with the backend configs:
+5. initialise the plan
    ```bash
    $ terraform init
    ```
-1. apply the plan
+6. apply the plan
    ```bash
    $ terraform apply
    ```
-1. view the provisioned resources in AWS
-1. clean up
+7. view the provisioned resources in AWS
+8. evaluate that signed URLs are working:
+   a. prepare environment variables:
+
+   ```shell
+   export _PUBLIC_KEY_ID=$(terraform show -json | jq -r .values.outputs.cloudfront_trusted_key_group_name.value)
+   export _PRIVATE_KEY=$(cat ./my-key.cloudfront_private.pem)
+   export _DOMAIN=$(terraform show -json | jq -r .values.outputs.cloudfront_domain.value)
+   ```
+
+   a. generate a signed URL for [`./assets/index.html`](./assets/index.html):
+
+   ```shell
+   # 403 when accessed without signed URL
+   curl -I https://${_DOMAIN}/assets/index.html
+
+   # 200 with signed URL (after authenticating aws-cli)
+   curl $(aws cloudfront sign --url https://${_DOMAIN}/assets/index.html \
+      --key-pair-id $_PUBLIC_KEY_ID --private-key $_PRIVATE_KEY \
+      --date-less-than $(date -v+1d +%F))
+
+   # =><h1>hello world</h1>
+   ```
+
+9. clean up
    ```bash
    $ terraform destroy
    ```
