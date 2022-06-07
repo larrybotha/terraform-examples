@@ -1,4 +1,4 @@
-# Digitalocean / Terraform droplet creation example
+# Terraform + AWS S3 + CloudFront + Signed URLs
 
 This repo demonstrates how to create a CloudFront distribution proxying an S3
 bucket, requiring signed URLs throught a Trusted Key Group in AWS.
@@ -16,10 +16,10 @@ This configuration is useful in a number of ways:
 
 There are a number of moving parts here:
 
-- provisioning a distribution, certificates, bucket, and trusted key groups
+- provisioning a distribution, bucket, bucket policies, origin access identities,
+  and trusted key groups
 - restricting access to the bucket to either signed URLs, or via the
   distribution
-- DNS validation of the certificate
 
 This is a lot to tackle all at once in an existing project, so this example is
 useful to abstract the core details away from production deployments to evaluate
@@ -35,40 +35,50 @@ If you have issues with any of these steps, remove all the generated Terraform
 files from this folder.
 
 1. create an access key and secret in AWS
-2. copy `./terraform.tfvars` from `./terraform.tfvars.example`:
-3. add access key, secret key, and bucket name to `./terraform.tfvars`:
-4. initialise Terraform with the backend configs:
-5. initialise the plan
+2. copy `./terraform.tfvars` from `./terraform.tfvars.example`
+3. generate public and private keys:
+   ```bash
+   $ ./scripts/gen-keys.sh
+   ```
+4. add variables to `./terraform.tfvars`:
+   a. `cloudfront_public_key` should be a base64 encoded string, e.g.:
+
+   ```bash
+   $ cat ./my-key.cloudfront_public.pem | base64
+   ```
+
+5. initialise Terraform with the backend configs:
+6. initialise the plan
    ```bash
    $ terraform init
    ```
-6. apply the plan
+7. apply the plan
    ```bash
    $ terraform apply
    ```
-7. view the provisioned resources in AWS
-8. evaluate that signed URLs are working:
+8. view the provisioned resources in AWS
+9. evaluate that signed URLs are working:
    a. prepare environment variables:
 
-   ```shell
-   export _PUBLIC_KEY_ID=$(terraform show -json | jq -r .values.outputs.cloudfront_trusted_key_group_name.value)
-   export _PRIVATE_KEY=$(cat ./my-key.cloudfront_private.pem)
-   export _DOMAIN=$(terraform show -json | jq -r .values.outputs.cloudfront_domain.value)
-   ```
+```shell
+export _PUBLIC_KEY_ID=$(terraform show -json | jq -r .values.outputs.cloudfront_trusted_key_group_name.value)
+export _PRIVATE_KEY=$(cat ./my-key.cloudfront_private.pem)
+export _DOMAIN=$(terraform show -json | jq -r .values.outputs.cloudfront_domain.value)
+```
 
-   a. generate a signed URL for [`./assets/index.html`](./assets/index.html):
+a. generate a signed URL for [`./assets/index.html`](./assets/index.html):
 
-   ```shell
-   # 403 when accessed without signed URL
-   curl -I https://${_DOMAIN}/assets/index.html
+```shell
+# 403 when accessed without signed URL
+curl -I https://${_DOMAIN}/assets/index.html
 
-   # 200 with signed URL (after authenticating aws-cli)
-   curl $(aws cloudfront sign --url https://${_DOMAIN}/assets/index.html \
-      --key-pair-id $_PUBLIC_KEY_ID --private-key $_PRIVATE_KEY \
-      --date-less-than $(date -v+1d +%F))
+# 200 with signed URL (after authenticating aws-cli)
+curl $(aws cloudfront sign --url https://${_DOMAIN}/assets/index.html \
+   --key-pair-id $_PUBLIC_KEY_ID --private-key $_PRIVATE_KEY \
+   --date-less-than $(date -v+1d +%F))
 
-   # =><h1>hello world</h1>
-   ```
+# =><h1>hello world</h1>
+```
 
 9. clean up
    ```bash
