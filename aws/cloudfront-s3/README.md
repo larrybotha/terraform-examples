@@ -60,27 +60,25 @@ files from this folder.
 8. view the provisioned resources in AWS
 9. evaluate that signed URLs are working:
 
-   1. prepare environment variables:
+   - prepare environment variables:
+     ```shell
+     export _PUBLIC_KEY_ID=$(terraform show -json | jq -r .values.outputs.cloudfront_trusted_key_group_name.value)
+     export _PRIVATE_KEY=$(cat ./my-key.cloudfront_private.pem)
+     export _DOMAIN=$(terraform show -json | jq -r .values.outputs.cloudfront_domain.value)
+     ```
+   - generate a signed URL for [`./assets/index.html`](./assets/index.html):
 
-   ```shell
-   export _PUBLIC_KEY_ID=$(terraform show -json | jq -r .values.outputs.cloudfront_trusted_key_group_name.value)
-   export _PRIVATE_KEY=$(cat ./my-key.cloudfront_private.pem)
-   export _DOMAIN=$(terraform show -json | jq -r .values.outputs.cloudfront_domain.value)
-   ```
+     ```shell
+     # 403 when accessed without signed URL
+     curl -I https://${_DOMAIN}/assets/index.html
 
-   1. generate a signed URL for [`./assets/index.html`](./assets/index.html):
+     # 200 with signed URL (after authenticating aws-cli)
+     curl $(aws cloudfront sign --url https://${_DOMAIN}/assets/index.html \
+        --key-pair-id $_PUBLIC_KEY_ID --private-key $_PRIVATE_KEY \
+        --date-less-than $(date -v+1d +%F))
 
-   ```shell
-   # 403 when accessed without signed URL
-   curl -I https://${_DOMAIN}/assets/index.html
-
-   # 200 with signed URL (after authenticating aws-cli)
-   curl $(aws cloudfront sign --url https://${_DOMAIN}/assets/index.html \
-      --key-pair-id $_PUBLIC_KEY_ID --private-key $_PRIVATE_KEY \
-      --date-less-than $(date -v+1d +%F))
-
-   # =><h1>hello world</h1>
-   ```
+     # =><h1>hello world</h1>
+     ```
 
 10. clean up
     ```bash
