@@ -5,7 +5,7 @@
 #   - bash
 #   - openssl
 # Example usage:
-#   ./gen-keys.sh.sh
+#   ./gen-keys.sh
 
 function __main() {
   local dir=.
