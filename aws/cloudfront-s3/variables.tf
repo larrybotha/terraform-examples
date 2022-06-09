@@ -18,6 +18,11 @@ variable "secret_key" {
   sensitive = true
 }
 
+variable "region" {
+  type    = string
+  default = "us-east-1"
+}
+
 variable "distribution_name" {
   description = "CDN name - used to name the CloudFront distribution and related assets"
   type        = string
