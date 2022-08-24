@@ -1,0 +1,20 @@
+#cloud-config
+users:
+  - name: ${ssh_user}
+    ssh_authorized_keys:
+      - ${ssh_key}
+    # allow user to use sudo without password
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    # give the user sudo privileges
+    groups: sudo
+    # use bash as the default shell
+    shell: /bin/bash
+
+runcmd:
+  - ufw allow OpenSSH
+  # disable root login
+  - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+  # allow the `${ssh_user}` user to log in
+  - sed -i -e '$aAllowUsers ${ssh_user}' /etc/ssh/sshd_config
+  # restart the SSH service
+  - systemctl restart ssh

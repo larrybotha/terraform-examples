@@ -1,0 +1,6 @@
+---
+- hosts: docean_droplets
+  gather_facts: false
+  roles:
+    - apt
+    - docker

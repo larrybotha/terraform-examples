@@ -1,0 +1,19 @@
+---
+- name: Wait for connection
+  become: true
+  ansible.builtin.wait_for_connection:
+    timeout: 300
+
+- name: Wait for apt to unlock
+  become: true
+  shell: |
+    while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1;
+      do sleep 5;
+    done;
+
+#- name: Update apt
+#  become: true
+#  apt:
+#    name: aptitude
+#    state: latest
+#    update_cache: true

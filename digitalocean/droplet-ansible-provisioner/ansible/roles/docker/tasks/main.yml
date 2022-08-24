@@ -1,0 +1,61 @@
+---
+- name: Install docker deps
+  become: true
+  apt:
+    pkg:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - python3-pip
+    state: latest
+
+- name: Add Docker GPG apt Key
+  become: true
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  become: true
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Install docker-ce
+  become: true
+  apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: latest
+
+- name: Install Docker Module for Python
+  become: true
+  pip:
+    name: docker
+
+- name: Ensure docker is running
+  become: true
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Pull Docker image
+  become: true
+  community.docker.docker_image:
+    name: "{{ docker_container_image }}"
+    source: pull
+
+- name: Create containers
+  become: true
+  community.docker.docker_container:
+    name: "{{ docker_container_name }}{{ item }}"
+    image: "{{ docker_container_image }}"
+    ports:
+      - "80:80"
+    state: started
+  with_sequence: count={{ docker_container_count }}

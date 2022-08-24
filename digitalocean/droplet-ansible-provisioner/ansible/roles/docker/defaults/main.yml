@@ -1,0 +1,4 @@
+---
+docker_container_count: 1
+docker_container_name: "nginx-demo"
+docker_container_image: "nginxdemos/hello"
