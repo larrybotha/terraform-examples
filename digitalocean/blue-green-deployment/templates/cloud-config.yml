@@ -22,7 +22,7 @@ runcmd:
     sed --in-place -expression \
     '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
   - sed --in-place --expression '$aAllowUsers app' /etc/ssh/sshd_config
-  - restart ssh
+  - systemctl restart ssh
   # install goss
   - |
     curl -L "https://github.com/aelsabbahy/goss/releases/download/${goss_version}/goss-linux-amd64" \

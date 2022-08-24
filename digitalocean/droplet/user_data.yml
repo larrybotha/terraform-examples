@@ -4,7 +4,7 @@ users:
     ssh_authorized_keys:
       - ${ssh_key}
     # allow user to use sudo without password
-    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     # give the user sudo privileges
     groups: sudo
     # use bash as the default shell
@@ -18,4 +18,4 @@ runcmd:
   # allow the `app` user to log in
   - sed -i -e '$aAllowUsers app' /etc/ssh/sshd_config
   # restart the SSH service
-  - restart ssh
+  - systemctl restart ssh
