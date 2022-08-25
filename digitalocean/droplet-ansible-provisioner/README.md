@@ -20,19 +20,19 @@ This repo serves is a runnable example for the entire process.
 
 ## Instructions
 
-1. Install Terraform and Ansible on your machine
-2. Configure Digitalocean personal access token:
-   1. Create a token in Digitalocean
-   2. Make it available to Terraform on your local machine:
+1. install Terraform and Ansible on your machine
+2. configure Digitalocean personal access token:
+   1. create a token in Digitalocean
+   2. make it available to Terraform on your local machine:
       ```bash
       $ export DO_ACCESS_TOKEN=your-access-token
       ```
-3. Configure a local SSH key
-   1. Create a key without a passphrase
+3. configure a local SSH key
+   1. create a key without a passphrase
       ```bash
       $ ssh-keygen -t rsa -f ./my-key
       ```
-   2. Update the name of your public key if it's not `my-key` in
+   2. update the name of your public key if it's not `my-key` in
       [`variables.tf`](./variables.tf):
       ```hcl
       variable "ssh_key" {
@@ -43,30 +43,40 @@ This repo serves is a runnable example for the entire process.
           }
       }
       ```
-4. Initialise Terraform:
+4. initialise Terraform:
    ```bash
    $ terraform -chdir=./terraform init
    ```
-5. View the plan
+5. view the plan
    ```bash
    $ terraform -chdir=./terraform plan \
         -var=do_access_token=$DO_ACCESS_TOKEN
    ```
-6. Execute the plan
+6. execute the plan
    ```bash
    $ terraform -chdir=./terraform apply \
         -var=do_access_token=$DO_ACCESS_TOKEN -auto-approve
    ```
-7. SSH into a droplet
+7. provision the droplets
+   ```bash
+   $ ansible-playbook ./ansible/provision.yml
+   ```
+8. SSH into a droplet
    ```bash
    $ ssh app@$(terraform -chdir=./terraform output -json ip_address | jq -r '.[0]') -i ./terraform/my-key
+   $ sudo docker ps -a
    $ exit
    ```
-8. Clean up
+9. visit the IPs of the provisioned droplets to confirm that the NGINX instances
+   defined in the Ansible playbook are running
    ```bash
-   $ terraform -chdir=./terraform destroy \
-       -var=do_access_token=$DO_ACCESS_TOKEN -auto-approve
+   $ open http://$(terraform -chdir=./terraform output -json ip_address | jq -r '.[0]')
    ```
+10. clean up
+    ```bash
+    $ terraform -chdir=./terraform destroy \
+        -var=do_access_token=$DO_ACCESS_TOKEN -auto-approve
+    ```
 
 ## Notes
 
