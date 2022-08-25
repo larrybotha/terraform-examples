@@ -8,12 +8,12 @@
   become: true
   shell: |
     while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1;
-      do sleep 5;
+      do sleep 1;
     done;
 
-#- name: Update apt
-#  become: true
-#  apt:
-#    name: aptitude
-#    state: latest
-#    update_cache: true
+- name: Update apt
+  become: true
+  apt:
+    name: aptitude
+    state: latest
+    update_cache: true
