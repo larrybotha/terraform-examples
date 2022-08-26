@@ -59,7 +59,9 @@ This repo serves is a runnable example for the entire process.
    ```
 7. provision the droplets
    ```bash
-   $ ansible-playbook ./ansible/provision.yml
+   $ cd ansible
+   $ ansible-playbook ./provision.yml --private-key=../my-key
+   $ cd -
    ```
 8. SSH into a droplet
    ```bash
